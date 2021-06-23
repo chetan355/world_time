@@ -1,32 +1,39 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart';
-import 'dart:convert';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+
+import 'package:world_time/services/world_time.dart';
 
 class Loading extends StatefulWidget {
   @override
   _LoadingState createState() => _LoadingState();
 }
 class _LoadingState extends State<Loading> {
-  void getData() async
-  {
-    Response response = await get(Uri.parse('http://worldtimeapi.org/api/timezone/Asia/Kolkata'));
-    Map data = jsonDecode(response.body);
-    String datetime = data['datetime'];
-    String offset = data['utc_offset'].substring(1,3);
-    DateTime curr = DateTime.parse(datetime);
-    curr = curr.add(Duration(hours: int.parse(offset)));
-    print(curr);
-    //print(data['datetime']);
+  void setUpTime() async{
+    WorldTime wt = WorldTime(location: 'Kolkata',flag: 'london.jpg',url: 'Asia/Kolkata');
+    await wt.getTime();
+    Navigator.pushReplacementNamed(context, '/home',arguments: {
+      'location':wt.location,
+      'flag':wt.flag,
+      'time':wt.time,
+      'isDayTime':wt.isDayTime,
+    });
   }
   @override
   void initState() {
     super.initState();
-    getData();
+    setUpTime();
   }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Text("Loading Screen")
+      backgroundColor: Colors.cyan,
+      body: Center(
+          child: SpinKitHourGlass(
+            color: Colors.white,
+            size: 80.0,
+          ),
+      )
     );
   }
 }
